@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   postgres:
     image: postgres:16-alpine
@@ -11,6 +10,27 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U amor -d cupons_amor_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    container_name: cupons-amor-api
+    ports:
+      - "8080:8080"
+    environment:
+      # Sobrescreve o profile dev local, voltando pro default do PostgreSQL
+      - SPRING_PROFILES_ACTIVE=default
+      # Aponta para o nome do container do banco ('postgres') em vez de localhost
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/cupons_amor_db
+      - SPRING_DATASOURCE_USERNAME=amor
+      - SPRING_DATASOURCE_PASSWORD=password
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 volumes:
   pgdata:

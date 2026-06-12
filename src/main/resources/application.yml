@@ -1,6 +1,8 @@
 spring:
   application:
     name: cupons_web_api
+  profiles:
+    active: dev
   threads:
     virtual:
       enabled: true
